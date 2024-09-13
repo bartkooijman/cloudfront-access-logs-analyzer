@@ -30,7 +30,7 @@ const OPENSEARCH_CONFIG = {
         index: {
           number_of_shards: OPENSEARCH_INDEX.numberOfShards,
           number_of_replicas: OPENSEARCH_INDEX.numberOfReplicas,
-          refresh_interval: "-1",
+          //refresh_interval: "-1",
           translog: {
               flush_threshold_size: "1024MB",
           }

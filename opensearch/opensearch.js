@@ -37,7 +37,6 @@ function convertToNdJsonFile(accessLogZipFileAsStream) {
     if (final == false) {
       // Process all but the last line (which may be incomplete)
       const newLineDelimitedJsonLogs = convertToNdJsonLogs(logLines);
-      validateJson(newLineDelimitedJsonLogs);
       appendToNdJsonFile(newLineDelimitedJsonLogs);
 
       // Set buffer to the last line (incomplete or complete doesn't matter)
@@ -46,7 +45,6 @@ function convertToNdJsonFile(accessLogZipFileAsStream) {
 
     if (final && logsBuffer.length > 0) {
       const newLineDelimitedJsonLogs = convertToNdJsonLogs(logLines, true);
-      validateJson(newLineDelimitedJsonLogs);
       appendToNdJsonFile(newLineDelimitedJsonLogs);
     }
   }
@@ -92,24 +90,51 @@ function index(accessLogZipFileAsStream) {
   unzippedStream.on("error", (err) => {
     logger.error("UnzippedStream error:", err);
   });
-}
 
-function indexLogsBuffer(final = false) {
-  const logLines = logsBuffer.split("\n");
-  if (final == false) {
-    // Process all but the last line (which may be incomplete)
-    const newLineDelimitedJsonLogs = convertToNdJsonLogs(logLines);
-    bulkIndex(newLineDelimitedJsonLogs);
-    appendToNdJsonFile(newLineDelimitedJsonLogs);
+  function indexLogsBuffer(final = false) {
+    const logLines = logsBuffer.split("\n");
+    if (final == false) {
+      // Process all but the last line (which may be incomplete)
+      const newLineDelimitedJsonLogs = convertToNdJsonLogs(logLines);
+      bulkIndex(newLineDelimitedJsonLogs);
 
-    // Set buffer to the last line (incomplete or complete doesn't matter)
-    logsBuffer = logLines[logLines.length - 1];
-  }
+      // Set buffer to the last line (incomplete or complete doesn't matter)
+      logsBuffer = logLines[logLines.length - 1];
+    }
 
-  if (final && logsBuffer.length > 0) {
-    const newLineDelimitedJsonLogs = convertToNdJsonLogs(logLines, true);
-    //bulkIndex(newLineDelimitedJsonLogs);
-    appendToNdJsonFile(newLineDelimitedJsonLogs);
+    if (final && logsBuffer.length > 0) {
+      const newLineDelimitedJsonLogs = convertToNdJsonLogs(logLines, true);
+      bulkIndex(newLineDelimitedJsonLogs);
+    }
+
+    function bulkIndex(newLineDelimitedJsonLogs) {
+      try {
+        counter++;
+        const startTime = performance.now();
+        const endpoint = `${config.opensearch.node}/${config.opensearch.indexName}/_bulk`;
+        axios.post(endpoint, newLineDelimitedJsonLogs, {
+          httpsAgent: config.axios.agent,
+          headers: {
+            "Content-Type": "application/x-ndjson",
+          },
+        });
+        const endTime = performance.now();
+        const duration = endTime - startTime;
+        const loglines = newLineDelimitedJsonLogs.split(/\r\n|\r|\n/).length;
+
+        totalLines += loglines;
+
+        logger.info(
+          `Axios POST request ${counter} took ${duration / 1000} seconds for ${
+            newLineDelimitedJsonLogs.length / 1024
+          } Kbytes containing ${loglines} lines (avarage lines per bulk ${
+            totalLines / counter
+          } and total lines ${totalLines})`
+        );
+      } catch (error) {
+        logger.error("Error indexing data:", error);
+      }
+    }
   }
 }
 
@@ -124,36 +149,8 @@ function convertToNdJsonLogs(logLines, final = false) {
     }
     newLineDelimitedJsonLogs += transform(logLines[i]);
   }
+  validateJson(newLineDelimitedJsonLogs);
   return newLineDelimitedJsonLogs;
-}
-
-function bulkIndex(newLineDelimitedJsonLogs) {
-  try {
-    counter++;
-    const startTime = performance.now();
-    const endpoint = `${config.opensearch.node}/${config.opensearch.indexName}/_bulk`;
-    axios.post(endpoint, newLineDelimitedJsonLogs, {
-      httpsAgent: config.axios.agent,
-      headers: {
-        "Content-Type": "application/x-ndjson",
-      },
-    });
-    const endTime = performance.now();
-    const duration = endTime - startTime;
-    const loglines = newLineDelimitedJsonLogs.split(/\r\n|\r|\n/).length;
-
-    totalLines += loglines;
-
-    logger.info(
-      `Axios POST request ${counter} took ${duration / 1000} seconds for ${
-        newLineDelimitedJsonLogs.length / 1024
-      } Kbytes containing ${loglines} lines (avarage lines per bulk ${
-        totalLines / counter
-      } and total lines ${totalLines})`
-    );
-  } catch (error) {
-    logger.error("Error indexing data:", error);
-  }
 }
 
 function transform(logLine) {
@@ -172,8 +169,7 @@ function transform(logLine) {
       logLine = replaceFirstTab(logLine, `","${field}":"`);
     }
   });
-  //return `{ "index" : { "_index" : "${config.opensearch.indexName}" } }\n${logLine}\n`;;
-  return `${logLine}\n`;
+  return `{ "index" : { "_index" : "${config.opensearch.indexName}" } }\n${logLine}\n`;
 }
 
 function getTimeStamp(logLine) {
