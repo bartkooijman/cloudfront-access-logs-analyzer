@@ -44,7 +44,7 @@ const S3_CONFIG = {
   region: "eu-west-1",
 };
 
-const CLOUDFRONT_S3_CONFIG = {
+const CLOUDFRONT_S3_BUCKET = {
   accessLogBucket: "ig-elblogging",
   accessLogFolder: "CF/",
   distributionId: "E3J8XYXNMM9IQS",
@@ -54,13 +54,13 @@ const CLOUDFRONT_S3_CONFIG = {
 };
 
 const CLOUDFRONT_CONFIG = {
-  accessLogBucket: CLOUDFRONT_S3_CONFIG.accessLogBucket,
-  accessLogFolder: CLOUDFRONT_S3_CONFIG.accessLogFolder,
-  distributionId: CLOUDFRONT_S3_CONFIG.distributionId,
-  accessLogYear: CLOUDFRONT_S3_CONFIG.accessLogYear,
-  accessLogMonth: CLOUDFRONT_S3_CONFIG.accessLogMonth,
-  accessLogDay: CLOUDFRONT_S3_CONFIG.accessLogDay,
-  prefix: CLOUDFRONT_S3_CONFIG.accessLogFolder + CLOUDFRONT_S3_CONFIG.distributionId + "." + CLOUDFRONT_S3_CONFIG.accessLogYear + "-" + CLOUDFRONT_S3_CONFIG.accessLogMonth + "-" + CLOUDFRONT_S3_CONFIG.accessLogDay
+  accessLogBucket: CLOUDFRONT_S3_BUCKET.accessLogBucket,
+  accessLogFolder: CLOUDFRONT_S3_BUCKET.accessLogFolder,
+  distributionId: CLOUDFRONT_S3_BUCKET.distributionId,
+  accessLogYear: CLOUDFRONT_S3_BUCKET.accessLogYear,
+  accessLogMonth: CLOUDFRONT_S3_BUCKET.accessLogMonth,
+  accessLogDay: CLOUDFRONT_S3_BUCKET.accessLogDay,
+  prefix: CLOUDFRONT_S3_BUCKET.accessLogFolder + CLOUDFRONT_S3_BUCKET.distributionId + "." + CLOUDFRONT_S3_BUCKET.accessLogYear + "-" + CLOUDFRONT_S3_BUCKET.accessLogMonth + "-" + CLOUDFRONT_S3_BUCKET.accessLogDay
 };
 
 const AXIOS_ROOT_CA = {
@@ -75,15 +75,15 @@ const AXIOS_CONFIG = {
 
 const LOGGER_CONFIG = {
   logToConsole: logToConsole,
-  logFilePrefix: CLOUDFRONT_S3_CONFIG.distributionId + "." + CLOUDFRONT_S3_CONFIG.accessLogYear + "-" + CLOUDFRONT_S3_CONFIG.accessLogMonth + "-" + CLOUDFRONT_S3_CONFIG.accessLogDay
+  logFilePrefix: CLOUDFRONT_S3_BUCKET.distributionId + "." + CLOUDFRONT_S3_BUCKET.accessLogYear + "-" + CLOUDFRONT_S3_BUCKET.accessLogMonth + "-" + CLOUDFRONT_S3_BUCKET.accessLogDay
 };
 
 const NDJSON_CONFIG = {
-  fileName: CLOUDFRONT_S3_CONFIG.distributionId + "-" + CLOUDFRONT_S3_CONFIG.accessLogYear + "-" + CLOUDFRONT_S3_CONFIG.accessLogMonth + "-" + CLOUDFRONT_S3_CONFIG.accessLogDay + ".json",
+  fileName: CLOUDFRONT_S3_BUCKET.distributionId + "-" + CLOUDFRONT_S3_BUCKET.accessLogYear + "-" + CLOUDFRONT_S3_BUCKET.accessLogMonth + "-" + CLOUDFRONT_S3_BUCKET.accessLogDay + ".json",
 };
 
 const CSV_CONFIG = {
-  fileName: CLOUDFRONT_S3_CONFIG.distributionId + "-" + CLOUDFRONT_S3_CONFIG.accessLogYear + "-" + CLOUDFRONT_S3_CONFIG.accessLogMonth + "-" + CLOUDFRONT_S3_CONFIG.accessLogDay + ".csv",
+  fileName: CLOUDFRONT_S3_BUCKET.distributionId + "-" + CLOUDFRONT_S3_BUCKET.accessLogYear + "-" + CLOUDFRONT_S3_BUCKET.accessLogMonth + "-" + CLOUDFRONT_S3_BUCKET.accessLogDay + ".csv",
 };
 
 const config = {

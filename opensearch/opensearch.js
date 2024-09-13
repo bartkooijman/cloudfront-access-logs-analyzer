@@ -36,7 +36,7 @@ function convertToNdJsonFile(accessLogZipFileAsStream) {
     const logLines = logsBuffer.split("\n");
     if (final == false) {
       // Process all but the last line (which may be incomplete)
-      const newLineDelimitedJsonLogs = convertToNdJsonLogs(logLines);
+      const newLineDelimitedJsonLogs = convertToNdJson(logLines);
       appendToNdJsonFile(newLineDelimitedJsonLogs);
 
       // Set buffer to the last line (incomplete or complete doesn't matter)
@@ -44,7 +44,7 @@ function convertToNdJsonFile(accessLogZipFileAsStream) {
     }
 
     if (final && logsBuffer.length > 0) {
-      const newLineDelimitedJsonLogs = convertToNdJsonLogs(logLines, true);
+      const newLineDelimitedJsonLogs = convertToNdJson(logLines, true);
       appendToNdJsonFile(newLineDelimitedJsonLogs);
     }
   }
@@ -95,7 +95,7 @@ function index(accessLogZipFileAsStream) {
     const logLines = logsBuffer.split("\n");
     if (final == false) {
       // Process all but the last line (which may be incomplete)
-      const newLineDelimitedJsonLogs = convertToNdJsonLogs(logLines);
+      const newLineDelimitedJsonLogs = convertToNdJson(logLines);
       bulkIndex(newLineDelimitedJsonLogs);
 
       // Set buffer to the last line (incomplete or complete doesn't matter)
@@ -103,7 +103,7 @@ function index(accessLogZipFileAsStream) {
     }
 
     if (final && logsBuffer.length > 0) {
-      const newLineDelimitedJsonLogs = convertToNdJsonLogs(logLines, true);
+      const newLineDelimitedJsonLogs = convertToNdJson(logLines, true);
       bulkIndex(newLineDelimitedJsonLogs);
     }
 
@@ -138,7 +138,7 @@ function index(accessLogZipFileAsStream) {
   }
 }
 
-function convertToNdJsonLogs(logLines, final = false) {
+function convertToNdJson(logLines, final = false) {
   let newLineDelimitedJsonLogs = "";
   const numberOfLogLinesProcessed = final
     ? logLines.length
@@ -217,7 +217,7 @@ function validateJson(newLineDelimitedJsonLogs) {
       JSON.parse(log);
     } catch (error) {
       logger.error("Error parsing log:", error);
-      convertToNdJsonLogs.exit(1);
+      process.exit(1);
     }
   });
 }

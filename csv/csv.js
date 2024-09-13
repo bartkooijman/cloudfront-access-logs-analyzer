@@ -7,7 +7,7 @@ const fieldsString =
   "timestamp date time x-edge-location sc-bytes c-ip cs-method cs(Host) cs-uri-stem sc-status cs(Referer) cs(User-Agent) cs-uri-query cs(Cookie) x-edge-result-type x-edge-request-id x-host-header cs-protocol cs-bytes time-taken x-forwarded-for ssl-protocol ssl-cipher x-edge-response-result-type cs-protocol-version fle-status fle-encrypted-fields c-port time-to-first-byte x-edge-detailed-result-type sc-content-type sc-content-len sc-range-start sc-range-end";
 const fields = fieldsString.replaceAll("(", "-").replaceAll(")", "").replaceAll(" ", ",");
 
-function toCvs(accessLogZipFileAsStream) {
+function convertToCsvFile(accessLogZipFileAsStream) {
   const gzip = createGunzip();
   const unzippedStream = accessLogZipFileAsStream.pipe(gzip);
 
@@ -16,36 +16,36 @@ function toCvs(accessLogZipFileAsStream) {
   unzippedStream.on("data", (data) => {
     logsBuffer += data.toString();
     if (logsBuffer.length > config.opensearch.bulkSize) {
-      processLogsBuffer();
+      convertLogsBufferToCsvFile();
     }
   });
 
   unzippedStream.on("end", () => {
-    processLogsBuffer(true);
+    convertLogsBufferToCsvFile(true);
   });
 
   unzippedStream.on("error", (err) => {
     logger.error("UnzippedStream error:", err);
   });
 
-  function processLogsBuffer(final = false) {
+  function convertLogsBufferToCsvFile(final = false) {
     const logLines = logsBuffer.split("\n");
     if (final == false) {
       // Process all but the last line (which may be incomplete)
-      const newLineDelimitedLogs = process(logLines);
-      insertIntoCsvFile(newLineDelimitedLogs);
+      const newLineDelimitedLogs = convertToCsv(logLines);
+      appendToCsvFile(newLineDelimitedLogs);
 
       // Set buffer to the last line (incomplete or complete)
       logsBuffer = logLines[logLines.length - 1];
     }
 
     if (final && logsBuffer.length > 0) {
-      const newLineDelimitedLogs = process(logLines, true);
-      insertIntoCsvFile(newLineDelimitedLogs);
+      const newLineDelimitedLogs = convertToCsv(logLines, true);
+      appendToCsvFile(newLineDelimitedLogs);
     }
   }
 
-  function process(logLines, final = false) {
+  function convertToCsv(logLines, final = false) {
     let commaSeparatedLogs = "";
     const numberOfLogLinesProcessed = final ? logLines.length : logLines.length - 1;
     for (let i = 0; i < numberOfLogLinesProcessed; i++) {
@@ -81,7 +81,7 @@ function toCvs(accessLogZipFileAsStream) {
     return `${date}T${time}\t` + logLine;
   }
 
-  function insertIntoCsvFile(commaSeparatedLogs) {
+  function appendToCsvFile(commaSeparatedLogs) {
     logger.info(
       `Inserting ${commaSeparatedLogs.length} comma separated logs into csv file ${config.csv.fileName}`
     );
@@ -102,4 +102,4 @@ function toCvs(accessLogZipFileAsStream) {
   }
 }
 
-export { toCvs };
+export { convertToCsvFile };
