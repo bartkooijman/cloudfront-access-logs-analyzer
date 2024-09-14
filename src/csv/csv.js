@@ -8,6 +8,8 @@ const fieldsString =
 const fields = fieldsString.replaceAll("(", "-").replaceAll(")", "").replaceAll(" ", ",");
 
 function convertToCsvFile(accessLogZipFileAsStream) {
+  if (!fs.existsSync(config.csv.fileName)) fs.writeFileSync(config.csv.fileName, fields + "\n");
+
   const gzip = createGunzip();
   const unzippedStream = accessLogZipFileAsStream.pipe(gzip);
 
@@ -49,11 +51,7 @@ function convertToCsvFile(accessLogZipFileAsStream) {
     let commaSeparatedLogs = "";
     const numberOfLogLinesProcessed = final ? logLines.length : logLines.length - 1;
     for (let i = 0; i < numberOfLogLinesProcessed; i++) {
-      if (logLines[i].startsWith("#Version") || logLines[i] == "") {
-        continue;
-      }
-      if (logLines[i].startsWith("#Fields")) {
-        commaSeparatedLogs += fields + "\n";
+      if (logLines[i].startsWith("#") || logLines[i] == "") {
         continue;
       }
       commaSeparatedLogs += transform(logLines[i]);
