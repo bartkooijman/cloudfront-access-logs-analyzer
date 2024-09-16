@@ -13,16 +13,17 @@ else
   done
   echo "Stopped all processes triggered by run.sh."
 fi
-# Get the process IDs of all node.js processes triggered by index.js
-node_pids=$(pgrep -f "index.js --day=")
+
+# Get the process IDs of all node.js processes triggered by accessLogsToCsv.js
+node_pids=$(pgrep -f "accessLogsToCsv.js")
 
 # Check if any node.js processes are running
 if [ -z "$node_pids" ]; then
-  echo "No node.js processes triggered by index.js are running."
+  echo "No node.js processes triggered by accessLogsToCsv.js are running."
 else
   # Stop each node.js process
   for node_pid in $node_pids; do
     kill "$node_pid"
   done
-  echo "Stopped all node.js processes triggered by index.js."
+  echo "Stopped all node.js processes accessLogsToCsv by index.js."
 fi

@@ -5,7 +5,7 @@ npm install
 wait
 
 # Execute node init.js and wait till it is finished (to init the opensearch index)
-# node init.js
+# node src/init.js
 # wait
 
 # Set the number of threads to use for the libuv thread pool
@@ -15,14 +15,14 @@ export UV_THREADPOOL_SIZE=16
 X=3
 
 # Command to run the Node.js script
-# NODE_COMMAND="node --max-old-space-size=16384 index.js --day="
-NODE_COMMAND="node --max-old-space-size=8192 index.js --day="
+# NODE_COMMAND="node --max-old-space-size=16384 src/indexAccessLogs.js --day="
+NODE_COMMAND="node --max-old-space-size=8192 src/accessLogsToCsv.js --year=2024 --month=07 --day="
 
 # Array to hold process IDs
 PIDS=()
 
 # Day counter
-DAY_COUNTER=5
+DAY_COUNTER=1
 
 # Function to start a new process
 start_new_process() {
@@ -56,7 +56,7 @@ while true; do
       # Remove finished process from array
       PIDS=(${PIDS[@]/$PID})
       # Start a new process
-      sleep 60
+      # sleep 60 was done to relief the opensearch server
       start_new_process
     fi
   done
