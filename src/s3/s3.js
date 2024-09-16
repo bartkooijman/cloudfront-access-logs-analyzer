@@ -27,6 +27,14 @@ async function fetchAccessLogZipFiles() {
     const listOfAccessLogZipFiles = await s3Client.send(
       new ListObjectsV2Command(listObjectsV2CommandParams)
     );
+
+    if (!listOfAccessLogZipFiles.Contents) {
+      logger.error(
+        `Failed to fetch access log zip files for prefix ${config.cloudfront.prefix}`
+      );
+      process.exit(1);
+    }
+
     accessLogZipFiles.push(...listOfAccessLogZipFiles.Contents);
     continuationToken = listOfAccessLogZipFiles.NextContinuationToken;
   } while (continuationToken);
