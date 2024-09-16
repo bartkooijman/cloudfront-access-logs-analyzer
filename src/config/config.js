@@ -1,9 +1,13 @@
 import fs from "fs";
 import https from "https";
 
-const args = process.argv.length > 2 ? process.argv[2].split(" ") : [];
+const args = process.argv.filter((arg) => arg.startsWith("--"));
 const dayArg = args.find((arg) => arg.startsWith("--day="));
 const dayValue = dayArg ? dayArg.split("=")[1] : null;
+const monthArg = args.find((arg) => arg.startsWith("--month="));
+const monthValue = monthArg ? monthArg.split("=")[1] : null;
+const yearArg = args.find((arg) => arg.startsWith("--year="));
+const yearValue = yearArg ? yearArg.split("=")[1] : null;
 const logToConsoleArg = args.find((arg) => arg.startsWith("--logToConsole="));
 const logToConsole = logToConsoleArg ? logToConsoleArg.split("=")[1] === "true" : false;
 
@@ -48,9 +52,9 @@ const CLOUDFRONT_S3_BUCKET = {
   accessLogBucket: "ig-elblogging",
   accessLogFolder: "CF/",
   distributionId: "E3J8XYXNMM9IQS",
-  accessLogYear: "2024",
-  accessLogMonth: "08",
-  accessLogDay: dayValue ? dayValue : "32",
+  accessLogYear: yearValue,
+  accessLogMonth: monthValue,
+  accessLogDay: dayValue,
 };
 
 const CLOUDFRONT_CONFIG = {
