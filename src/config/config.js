@@ -12,8 +12,8 @@ const logToConsoleArg = args.find((arg) => arg.startsWith("--logToConsole="));
 const logToConsole = logToConsoleArg ? logToConsoleArg.split("=")[1] === "true" : false;
 
 const OPENSEARCH_CREDENTIALS = {
-  adminUser: "admin",
-  adminPwd: "Tijdelijk0!",
+  adminUser: "xxxx",
+  adminPwd: "xxxxxxxxxxxxxxxx",
 };
 
 const OPENSEARCH_INDEX = {
@@ -49,9 +49,9 @@ const S3_CONFIG = {
 };
 
 const CLOUDFRONT_S3_BUCKET = {
-  accessLogBucket: "ig-elblogging",
-  accessLogFolder: "CF/",
-  distributionId: "E3J8XYXNMM9IQS",
+  accessLogBucket: "xxxxxxxxx",
+  accessLogFolder: "xxxxxxxxx",
+  distributionId: "xxxxxxxxxx",
   accessLogYear: yearValue,
   accessLogMonth: monthValue,
   accessLogDay: dayValue,
