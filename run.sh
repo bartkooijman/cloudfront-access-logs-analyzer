@@ -14,33 +14,44 @@ export UV_THREADPOOL_SIZE=16
 # Number of processes to run in parallel
 X=3
 
+# Set the start and end day numbers (inclusive)
+YEAR=2025
+MONTH=09
+START_DAY=19
+END_DAY=22
+
 # Command to run the Node.js script
 # NODE_COMMAND="node --max-old-space-size=16384 src/indexAccessLogs.js --day="
-NODE_COMMAND="node --max-old-space-size=8192 src/accessLogsToCsv.js --year=2024 --month=07 --day="
+NODE_COMMAND="node --max-old-space-size=8192 src/accessLogsToCsv.js --year=$YEAR --month=$MONTH --day="
 
 # Array to hold process IDs
 PIDS=()
 
 # Day counter
-DAY_COUNTER=1
+DAY_COUNTER=$START_DAY
 
 # Function to start a new process
 start_new_process() {
+  # Stop if we've passed the end day
+  if [ $DAY_COUNTER -gt $END_DAY ]; then
+    echo "All days processed. Exiting."
+    exit 0
+  fi
+
   # Format the day number to always be two digits
   DAY_NUMBER=$(printf "%02d" $DAY_COUNTER)
+
   # Append the day number to the Node.js command
   FULL_COMMAND="$NODE_COMMAND$DAY_NUMBER"
+
+  # Start the process in the background
   $FULL_COMMAND &
   PID=$!
   echo "Started process with PID: $PID and DAY_NUMBER: $DAY_NUMBER"
   PIDS+=($PID)
   
-  # Increment the day counter and wrap around if it exceeds 31
+  # Increment the day counter
   DAY_COUNTER=$((DAY_COUNTER + 1))
-  if [ $DAY_COUNTER -gt 31 ]; then
-    echo "All days processed. Exiting."
-    exit 0
-  fi
 }
 
 # Start initial processes
@@ -56,7 +67,6 @@ while true; do
       # Remove finished process from array
       PIDS=(${PIDS[@]/$PID})
       # Start a new process
-      # sleep 60 was done to relief the opensearch server
       start_new_process
     fi
   done

@@ -11,7 +11,7 @@
 set -x
 
 export GCP_USER="bart"
-export HOST_IP="34.140.85.181"
+export HOST_IP="34.77.62.195"
 
 rm -rf node_modules/
 rm package-lock.json
